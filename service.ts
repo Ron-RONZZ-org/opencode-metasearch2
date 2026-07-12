@@ -40,6 +40,7 @@ const DEFAULT_STARTUP_TIMEOUT_MS = 10_000;
 const DEFAULT_HEALTH_POLL_INTERVAL_MS = 200;
 const DEFAULT_REQUEST_TIMEOUT_MS = 15_000;
 const CARGO_INSTALL_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes for compilation
+const FORK_REPO = 'https://github.com/Ron-RONZZ-org/metasearch2';
 
 // ---------------------------------------------------------------------------
 // Service
@@ -138,7 +139,7 @@ export class MetasearchService {
   // -----------------------------------------------------------------------
 
   /**
-   * Attempt to install metasearch via `cargo install metasearch`.
+   * Attempt to install metasearch from the patched fork repo via `cargo install --git <fork> metasearch`.
    * Returns the resolved binary path on success, or `undefined` on failure.
    */
   private async installViaCargo(): Promise<string | undefined> {
@@ -146,7 +147,7 @@ export class MetasearchService {
     if (cargoCheck.status !== 0) return undefined;
 
     return new Promise<string | undefined>((resolve) => {
-      const proc = spawn('cargo', ['install', 'metasearch'], {
+      const proc = spawn('cargo', ['install', '--git', FORK_REPO, 'metasearch'], {
         stdio: ['ignore', 'pipe', 'pipe'],
       });
 
@@ -253,7 +254,7 @@ export class MetasearchService {
 
     if (!this.binPath) {
       throw new Error(
-        'binary not found. Install with: cargo install metasearch\n' +
+        `binary not found. Install the patched fork: cargo install --git ${FORK_REPO} metasearch\n` +
           '  Or set METASEARCH_BIN to the binary path.',
       );
     }
