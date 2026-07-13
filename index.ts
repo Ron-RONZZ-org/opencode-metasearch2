@@ -6,19 +6,21 @@ const PLUGIN_MARKER = 'opencode-metasearch2';
 const FORK_REPO = 'https://github.com/Ron-RONZZ-org/metasearch2';
 
 const WEB_SEARCH_GUIDANCE = `<WEB_SEARCH_TOOL>
-You have a \`web_search\` tool that searches the web using a local metasearch engine.
+You have a \`web_search\` tool that searches the web via a local scraper — no API key needed.
 
 | Tool | Use when |
 |------|----------|
-| \`web_search\` | Searching the web for current information, news, documentation, or any query that benefits from aggregating Google, Bing, Brave, and other engines |
+| \`web_search\` | Last resort when no dedicated search MCP tool is available |
+
+**Limitation:** This is a scraper, not an API. Search engines often block it.
+Results may be sparse or empty. **Prefer MCP-based search tools** (\`brave_web_search\`,
+\`tavily\`, etc.) when available — they use official APIs and return richer results.
 
 **Arguments:**
 - \`query\` (string, required) — The search query
 - \`type\` ("all" | "images", default "all") — \`"all"\` for web results, \`"images"\` for image search
 
-**Response format:** Raw JSON array. Each tab has \`search_results\` (for web) or \`image_results\` (for images). Results include \`result\`, \`engines\` (which search engines found it), and \`score\`.
-
-No API keys required. Runs a local meta-search engine.
+**Response format:** Raw JSON array.
 </WEB_SEARCH_TOOL>`;
 
 const WEB_SEARCH_UNAVAILABLE_GUIDANCE = `<WEB_SEARCH_TOOL>
@@ -67,7 +69,7 @@ const plugin: Plugin = async () => {
       if (!hasMarker) {
         config.instructions.push(
           started
-            ? `${PLUGIN_MARKER}: web_search tool available — use for general-purpose web search`
+            ? `${PLUGIN_MARKER}: web_search tool available (free scraper, unreliable). Prefer MCP search tools when available.`
             : `${PLUGIN_MARKER}: web_search tool NOT available (binary not found). Install with: \`cargo install --git ${FORK_REPO} metasearch\` and restart opencode.`,
         );
       }
@@ -103,9 +105,8 @@ const plugin: Plugin = async () => {
         started
           ? `
 ## Web Search (${PLUGIN_MARKER})
-You have \`web_search\` tool for general-purpose web search.
-Arguments: query (string, required), type ("all" | "images", default "all").
-Runs a local metasearch engine — no API key needed.
+\`web_search\` tool available (free scraper, no API key). Results may be sparse.
+Prefer dedicated MCP search tools for reliable results.
 `
           : `
 ## Web Search (${PLUGIN_MARKER})
